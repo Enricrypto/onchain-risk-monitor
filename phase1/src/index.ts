@@ -1,6 +1,10 @@
 import { config, validateConfig } from './utils/config';
-import { logger } from './utils/logger';
+import { logger, auditLogger } from './utils/logger';
 import { testConnection, getBlockNumber, getAllReservesTokens } from './utils/client';
+import { CollectorManager } from './collectors';
+import { startMetricsServer, stopMetricsServer } from './metrics';
+
+let collectorManager: CollectorManager | null = null;
 
 async function main() {
   logger.info('=== Onchain Risk Monitor - Phase 1 ===');
@@ -40,13 +44,62 @@ async function main() {
       reserves: reserves.map((r) => r.symbol),
     });
   } catch (error) {
-    logger.warn('Could not fetch reserves (may need valid RPC)', { error });
+    logger.warn('Could not fetch reserves', { error: String(error) });
   }
 
-  logger.info('Initialization complete. Ready to start collectors.');
+  // Start metrics server
+  await startMetricsServer();
+  logger.info('Metrics server started', {
+    url: `http://localhost:${config.metricsPort}${config.metricsPath}`,
+  });
+
+  // Start collectors
+  collectorManager = new CollectorManager();
+  await collectorManager.start();
+
+  // Log initial audit entry
+  auditLogger.log('SYSTEM_START', {
+    version: '1.0.0',
+    network: config.networkName,
+    chainId: config.chainId,
+  });
+
+  logger.info('=== System fully initialized ===');
+  logger.info('Metrics available at:', {
+    metrics: `http://localhost:${config.metricsPort}${config.metricsPath}`,
+    health: `http://localhost:${config.metricsPort}/health`,
+    status: `http://localhost:${config.metricsPort}/status`,
+  });
+
+  // Keep the process running
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+}
+
+async function shutdown() {
+  logger.info('Shutdown signal received...');
+
+  auditLogger.log('SYSTEM_SHUTDOWN', { reason: 'signal' });
+
+  if (collectorManager) {
+    await collectorManager.stop();
+  }
+
+  await stopMetricsServer();
+
+  // Verify audit log integrity
+  const verification = auditLogger.verify();
+  if (!verification.valid) {
+    logger.error('Audit log verification failed', { errors: verification.errors });
+  } else {
+    logger.info('Audit log verified successfully');
+  }
+
+  logger.info('Shutdown complete');
+  process.exit(0);
 }
 
 main().catch((error) => {
-  logger.error('Fatal error', { error });
+  logger.error('Fatal error', { error: String(error) });
   process.exit(1);
 });
