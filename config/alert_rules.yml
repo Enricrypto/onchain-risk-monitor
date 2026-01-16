@@ -1,0 +1,96 @@
+groups:
+  - name: aave_alerts
+    rules:
+      # High utilization rate alert
+      - alert: HighUtilizationRate
+        expr: aave_utilization_rate > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High utilization rate detected for {{ $labels.asset }}"
+          description: "Utilization rate is {{ $value }}% for asset {{ $labels.asset }}"
+
+      # Critical utilization rate alert
+      - alert: CriticalUtilizationRate
+        expr: aave_utilization_rate > 95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical utilization rate for {{ $labels.asset }}"
+          description: "Utilization rate is {{ $value }}% for asset {{ $labels.asset }}. Immediate attention required."
+
+      # Flashloan spike alert
+      - alert: FlashloanSpike
+        expr: rate(aave_flashloan_total[5m]) * 300 > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Flashloan activity spike detected"
+          description: "{{ $value }} flashloans in the last 5 minutes"
+
+      # Liquidation spike alert
+      - alert: LiquidationSpike
+        expr: rate(aave_liquidation_total[5m]) * 300 > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Liquidation activity spike detected"
+          description: "{{ $value }} liquidations in the last 5 minutes"
+
+      # High liquidation volume
+      - alert: HighLiquidationVolume
+        expr: increase(aave_liquidation_volume_total[1h]) > 1000000
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High liquidation volume detected"
+          description: "{{ $value }} in liquidation volume in the last hour"
+
+  - name: collector_alerts
+    rules:
+      # Collector unhealthy
+      - alert: CollectorUnhealthy
+        expr: collector_health == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Collector {{ $labels.collector }} is unhealthy"
+          description: "The {{ $labels.collector }} collector has been unhealthy for more than 2 minutes"
+
+      # Collector errors
+      - alert: CollectorErrors
+        expr: rate(collector_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Collector {{ $labels.collector }} experiencing errors"
+          description: "{{ $value }} errors per second on {{ $labels.collector }} collector"
+
+      # Collector stale
+      - alert: CollectorStale
+        expr: time() - collector_last_block_processed > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Collector {{ $labels.collector }} is stale"
+          description: "No new blocks processed in the last 5 minutes for {{ $labels.collector }}"
+
+  - name: alert_delivery
+    rules:
+      # Alert delivery failures
+      - alert: AlertDeliveryFailure
+        expr: rate(alerts_failed_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Alert delivery failures on {{ $labels.channel }}"
+          description: "Failing to deliver alerts via {{ $labels.channel }}"
