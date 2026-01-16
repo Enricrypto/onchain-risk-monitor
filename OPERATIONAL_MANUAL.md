@@ -4,14 +4,28 @@
 
 This document provides operational procedures for the Onchain Risk Monitor Phase 1 deployment.
 
-## System Components
+## System Components & Endpoints
 
-| Component | Port | Description |
-|-----------|------|-------------|
-| Collector | 9090 | Metrics collection from Aave |
-| Prometheus | 9091 | Metrics storage and alerting |
-| Alertmanager | 9093 | Alert routing and delivery |
-| Grafana | 3000 | Visualization dashboards |
+| Component    | Port | URL                          | Description                    |
+|--------------|------|------------------------------|--------------------------------|
+| Collector    | 9090 | http://localhost:9090        | Metrics collection from Aave   |
+| Prometheus   | 9091 | http://localhost:9091        | Metrics storage and alerting   |
+| Alertmanager | 9093 | http://localhost:9093        | Alert routing and delivery     |
+| Grafana      | 3000 | http://localhost:3000        | Visualization dashboards       |
+
+### Collector Endpoints
+
+| Endpoint  | URL                           | Description              |
+|-----------|-------------------------------|--------------------------|
+| Metrics   | http://localhost:9090/metrics | Prometheus metrics       |
+| Health    | http://localhost:9090/health  | Health check (JSON)      |
+| Status    | http://localhost:9090/status  | System status (JSON)     |
+
+### Default Credentials
+
+| Service  | Username | Password |
+|----------|----------|----------|
+| Grafana  | admin    | admin    |
 
 ## Startup Procedures
 
