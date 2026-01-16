@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="gradPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="gradOrange" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="gradTeal" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#14b8a6"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="100" height="100" rx="16" fill="#0a0a0a"/>
+  <!-- 3D Prism/Crystal shape inspired by Spark design -->
+  <!-- Back face - purple -->
+  <polygon points="50,15 75,45 50,85 25,45" fill="url(#gradPurple)" opacity="0.9"/>
+  <!-- Right face - orange -->
+  <polygon points="50,15 75,45 50,85" fill="url(#gradOrange)" opacity="0.7"/>
+  <!-- Left face - teal accent -->
+  <polygon points="50,15 25,45 50,85" fill="url(#gradTeal)" opacity="0.5"/>
+  <!-- Center highlight line -->
+  <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  <!-- Top edge highlights -->
+  <line x1="50" y1="15" x2="75" y2="45" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+  <line x1="50" y1="15" x2="25" y2="45" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+</svg>
